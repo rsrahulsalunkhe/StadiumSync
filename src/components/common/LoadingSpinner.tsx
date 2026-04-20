@@ -1,0 +1,40 @@
+import { cn } from '@/lib/utils';
+
+interface LoadingSpinnerProps {
+  size?: 'sm' | 'md' | 'lg';
+  label?: string;
+  className?: string;
+}
+
+const sizeClasses = {
+  sm: 'h-4 w-4 border-2',
+  md: 'h-8 w-8 border-2',
+  lg: 'h-12 w-12 border-4',
+} as const;
+
+export function LoadingSpinner({
+  size = 'md',
+  label = 'Loading…',
+  className,
+}: LoadingSpinnerProps) {
+  return (
+    <div
+      role="status"
+      className={cn('flex flex-col items-center gap-3', className)}
+    >
+      <div
+        aria-hidden="true"
+        className={cn(
+          'animate-spin rounded-full border-navy-600 border-t-neon',
+          sizeClasses[size],
+        )}
+      />
+      <span className="sr-only">{label}</span>
+      {size === 'lg' && (
+        <p className="text-sm text-slate-400" aria-hidden="true">
+          {label}
+        </p>
+      )}
+    </div>
+  );
+}

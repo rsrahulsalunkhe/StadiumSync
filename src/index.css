@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS custom properties (shadcn/ui convention) ─────────────────────────── */
+@layer base {
+  :root {
+    --background: 222 47% 7%;       /* navy-950 */
+    --foreground: 210 40% 92%;
+
+    --card: 222 47% 11%;            /* navy-900 */
+    --card-foreground: 210 40% 92%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 92%;
+
+    --primary: 151 100% 50%;        /* neon green */
+    --primary-foreground: 222 47% 7%;
+
+    --secondary: 222 47% 18%;       /* navy-700 */
+    --secondary-foreground: 210 40% 92%;
+
+    --muted: 222 47% 15%;
+    --muted-foreground: 215 20% 55%;
+
+    --accent: 151 100% 50%;
+    --accent-foreground: 222 47% 7%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 222 47% 20%;
+    --input: 222 47% 18%;
+    --ring: 151 100% 50%;
+
+    --radius: 0.5rem;
+  }
+}
+
+/* ── Base resets & global styles ─────────────────────────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    @apply border-border;
+  }
+
+  html {
+    /* Smooth scrolling — respects prefers-reduced-motion below */
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-navy-950 text-slate-100 antialiased;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+  }
+
+  /* Honour user motion preferences (WCAG 2.3.3) */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Ensure focus outlines are always visible (WCAG 2.4.7) */
+  :focus-visible {
+    @apply outline-none ring-2 ring-neon ring-offset-2 ring-offset-navy-950;
+  }
+
+  /* Remove default list styles when semantic list roles are used */
+  [role='list'] {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+/* ── Utility classes ─────────────────────────────────────────────────────── */
+@layer utilities {
+  /* Screen-reader only + unhide on focus (WCAG 2.4.1 skip links) */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .not-sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* Neon text glow */
+  .text-glow-neon {
+    text-shadow: 0 0 8px theme('colors.neon.DEFAULT'), 0 0 20px theme('colors.neon.DEFAULT');
+  }
+
+  /* Scrollbar styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.navy.700') theme('colors.navy.950');
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: theme('colors.navy.950');
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: theme('colors.navy.700');
+    border-radius: 9999px;
+  }
+}
