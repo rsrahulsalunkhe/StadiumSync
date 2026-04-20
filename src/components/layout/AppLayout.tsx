@@ -16,7 +16,7 @@ export default function AppLayout({ role }: AppLayoutProps) {
     <div className="flex min-h-screen flex-col bg-navy-950 text-slate-100">
       <SkipNav />
 
-      <Navbar role={role} onMenuToggle={() => setSidebarOpen((o) => !o)} />
+      <Navbar role={role} onMenuToggle={() => setSidebarOpen((o) => !o)} sidebarOpen={sidebarOpen} />
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar

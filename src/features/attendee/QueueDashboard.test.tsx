@@ -10,16 +10,13 @@ vi.mock('@/hooks/useQueueData', () => ({
   useQueueData: () => mockUseQueueData(),
 }));
 
-vi.mock('@/components/queue/QueueCard', () => ({
+vi.mock('@/features/attendee/components', () => ({
   QueueCard: ({ zone }: { zone: QueueZone }) => <div data-testid="queue-card">{zone.name}</div>,
+  ExitRoutingDialog: () => null,
 }));
 
 vi.mock('@/components/queue/QueueCardSkeleton', () => ({
   QueueCardSkeleton: () => <div data-testid="queue-skeleton">Loading</div>,
-}));
-
-vi.mock('@/components/exit/ExitRoutingDialog', () => ({
-  ExitRoutingDialog: () => null,
 }));
 
 const zones: QueueZone[] = [

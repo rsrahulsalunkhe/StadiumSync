@@ -32,6 +32,7 @@ export function ZoneControl({ snapshot }: ZoneControlProps) {
                   aria-valuenow={pct}
                   aria-valuemin={0}
                   aria-valuemax={100}
+                  aria-valuetext={`${pct}% occupied${pct >= 90 ? ' — critical' : pct >= 70 ? ' — elevated' : ''}`}
                   aria-label={`${zone.zoneName} occupancy`}
                   className="h-2.5 w-full rounded-full bg-navy-700"
                 >

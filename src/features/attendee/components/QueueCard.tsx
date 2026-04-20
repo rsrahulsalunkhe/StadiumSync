@@ -102,6 +102,7 @@ export const QueueCard = memo(function QueueCard({ zone, className }: QueueCardP
           aria-valuenow={pct}
           aria-valuemin={0}
           aria-valuemax={100}
+          aria-valuetext={`${pct}% capacity${pct >= 90 ? ' — full, seek alternative' : pct >= 70 ? ' — busy' : ''}`}
           aria-label={`${zone.name} at ${pct}% capacity`}
           className="h-1.5 w-full rounded-full bg-navy-700 overflow-hidden"
         >

@@ -121,6 +121,7 @@ export default function CrowdMonitor() {
                   aria-valuenow={snapshot.overallOccupancyPercent}
                   aria-valuemin={0}
                   aria-valuemax={100}
+                  aria-valuetext={`${snapshot.overallOccupancyPercent}% occupied${snapshot.overallOccupancyPercent >= 90 ? ' — critical' : snapshot.overallOccupancyPercent >= 70 ? ' — elevated' : ''}`}
                   aria-label="Overall stadium occupancy"
                   className="h-4 w-full rounded-full bg-navy-700"
                 >

@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { TaskCard } from './TaskCard';
+import { TaskCard } from '@/features/staff/components/TaskCard';
 import type { StaffTask } from '@/types/task';
+
+vi.mock('dompurify', () => ({
+  default: { sanitize: (s: string) => s },
+}));
 
 vi.mock('@dnd-kit/sortable', () => ({
   useSortable: vi.fn(() => ({

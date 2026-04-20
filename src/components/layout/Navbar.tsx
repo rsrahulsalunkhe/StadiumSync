@@ -10,6 +10,7 @@ import type { UserRole } from '@/types/auth';
 interface NavbarProps {
   role: UserRole;
   onMenuToggle: () => void;
+  sidebarOpen?: boolean;
 }
 
 const roleLabels: Record<UserRole, string> = {
@@ -18,7 +19,7 @@ const roleLabels: Record<UserRole, string> = {
   admin: 'Admin',
 };
 
-export function Navbar({ role, onMenuToggle }: NavbarProps) {
+export function Navbar({ role, onMenuToggle, sidebarOpen = false }: NavbarProps) {
   const { currentUser: user, logout } = useAuth();
   // useNotifications sets up FCM token registration + foreground message handler
   const { unreadCount } = useNotifications();
@@ -34,7 +35,7 @@ export function Navbar({ role, onMenuToggle }: NavbarProps) {
           variant="ghost"
           size="icon"
           aria-label="Toggle navigation menu"
-          aria-expanded={undefined}
+          aria-expanded={sidebarOpen}
           aria-controls="sidebar-nav"
           onClick={onMenuToggle}
           className="lg:hidden"

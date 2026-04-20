@@ -7,27 +7,24 @@ import { AuthProvider, useAuth } from './AuthContext';
 import { useAuthStore } from '@/store/authStore';
 
 const mocks = vi.hoisted(() => ({
-  authStateCallback: null as ((user: unknown) => void) | null,
-  signInWithEmailAndPassword: vi.fn(),
-  signOut: vi.fn(),
-  getDoc: vi.fn(),
-  toastError: vi.fn(),
-  navigate: vi.fn(),
+  logout: vi.fn(),
+  loginWithGoogle: vi.fn(),
 }));
 
-vi.mock('firebase/auth', () => ({
-  onAuthStateChanged: vi.fn((_auth: unknown, cb: (user: unknown) => void) => {
-    mocks.authStateCallback = cb;
-    return vi.fn();
+// AuthProvider now sources auth state from useAuthStore and delegates
+// login/logout to the useAuth hook. We mock the hook's action methods.
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: () => ({
+    loginWithGoogle: mocks.loginWithGoogle,
+    logout: mocks.logout,
+    user: null,
+    isLoading: false,
+    isAuthenticated: false,
+    currentUser: null,
+    userRole: null,
+    isLoggedIn: false,
+    login: async () => {},
   }),
-  signInWithEmailAndPassword: mocks.signInWithEmailAndPassword,
-  signInWithPopup: vi.fn(),
-  signOut: mocks.signOut,
-}));
-
-vi.mock('firebase/firestore', () => ({
-  doc: vi.fn(() => ({})),
-  getDoc: mocks.getDoc,
 }));
 
 vi.mock('@/lib/firebase', () => ({
@@ -36,39 +33,15 @@ vi.mock('@/lib/firebase', () => ({
   googleProvider: {},
 }));
 
-vi.mock('react-hot-toast', () => ({
-  default: {
-    error: mocks.toastError,
-    success: vi.fn(),
-  },
-  Toaster: () => null,
-}));
-
-vi.mock('react-router-dom', async (importActual) => {
-  const actual = await importActual<typeof import('react-router-dom')>();
-  return {
-    ...actual,
-    useNavigate: () => mocks.navigate,
-  };
-});
-
-const fbUser = {
-  uid: 'user-1',
-  email: 'user@stadiumsync.com',
-  displayName: 'Sam User',
-  photoURL: null,
-};
-
-function AuthActions() {
-  const { login, logout, userRole } = useAuth();
-
+function AuthDisplay() {
+  const { currentUser, userRole, isLoggedIn, logout, loginWithGoogle } = useAuth();
   return (
     <div>
-      <button onClick={() => login({ email: 'user@stadiumsync.com', password: 'password123' }).catch(() => {})}>
-        Login
-      </button>
-      <button onClick={() => logout()}>Logout</button>
       <span data-testid="role">{userRole ?? 'none'}</span>
+      <span data-testid="uid">{currentUser?.uid ?? 'none'}</span>
+      <span data-testid="logged-in">{String(isLoggedIn)}</span>
+      <button onClick={() => void logout()}>Logout</button>
+      <button onClick={() => void loginWithGoogle()}>Google</button>
     </div>
   );
 }
@@ -77,115 +50,78 @@ function renderAuth() {
   return render(
     <MemoryRouter>
       <AuthProvider>
-        <AuthActions />
+        <AuthDisplay />
       </AuthProvider>
     </MemoryRouter>,
   );
 }
 
-async function resolveInitialAuth(user: unknown = null) {
-  await waitFor(() => {
-    expect(mocks.authStateCallback).not.toBeNull();
-  });
-  mocks.authStateCallback?.(user);
-}
-
 beforeEach(() => {
-  mocks.authStateCallback = null;
-  mocks.signInWithEmailAndPassword.mockReset();
-  mocks.signOut.mockReset();
-  mocks.getDoc.mockReset();
-  mocks.toastError.mockReset();
-  mocks.navigate.mockReset();
+  mocks.logout.mockReset();
+  mocks.loginWithGoogle.mockReset();
 
   useAuthStore.setState({
-    currentUser: null,
-    userRole: null,
-    isLoading: true,
+    user: null,
+    isLoading: false,
+    isAuthenticated: false,
   });
-
-  mocks.getDoc.mockResolvedValue({ data: () => ({ role: 'attendee' }) });
 });
 
-describe('useAuth', () => {
-  it('logs in and assigns role from Firestore', async () => {
-    mocks.signInWithEmailAndPassword.mockResolvedValue({ user: fbUser });
-    mocks.getDoc.mockResolvedValueOnce({ data: () => ({ role: 'staff' }) });
-
+describe('AuthProvider', () => {
+  it('renders children with role=none when unauthenticated', () => {
     renderAuth();
-    await resolveInitialAuth(null);
-
-    await userEvent.click(screen.getByRole('button', { name: 'Login' }));
-
-    await waitFor(() => {
-      expect(useAuthStore.getState().userRole).toBe('staff');
-      expect(mocks.navigate).toHaveBeenCalledWith('/staff', { replace: true });
-    });
+    expect(screen.getByTestId('role')).toHaveTextContent('none');
+    expect(screen.getByTestId('logged-in')).toHaveTextContent('false');
   });
 
-  it('logs out and clears auth state', async () => {
-    mocks.getDoc.mockResolvedValueOnce({ data: () => ({ role: 'attendee' }) });
-
+  it('shows loading spinner while auth is resolving', () => {
+    useAuthStore.setState({ isLoading: true, user: null, isAuthenticated: false });
     renderAuth();
-    await resolveInitialAuth(fbUser);
+    // The loading container has aria-busy="true"; children (AuthDisplay) must not render
+    expect(document.querySelector('[aria-busy="true"]')).toBeInTheDocument();
+    expect(screen.queryByTestId('role')).not.toBeInTheDocument();
+  });
 
-    await waitFor(() => {
-      expect(useAuthStore.getState().currentUser?.uid).toBe('user-1');
+  it('exposes userRole from the Zustand auth store', () => {
+    useAuthStore.setState({
+      user: { uid: 'u-1', email: 'admin@test.com', displayName: 'Admin', photoURL: '', role: 'admin' },
+      isLoading: false,
+      isAuthenticated: true,
     });
+    renderAuth();
+    expect(screen.getByTestId('role')).toHaveTextContent('admin');
+    expect(screen.getByTestId('uid')).toHaveTextContent('u-1');
+    expect(screen.getByTestId('logged-in')).toHaveTextContent('true');
+  });
 
-    mocks.signOut.mockResolvedValueOnce(undefined);
+  it('delegates logout to the useAuth hook', async () => {
+    mocks.logout.mockResolvedValue(undefined);
+    renderAuth();
     await userEvent.click(screen.getByRole('button', { name: 'Logout' }));
-
-    await waitFor(() => {
-      expect(useAuthStore.getState().currentUser).toBeNull();
-      expect(mocks.navigate).toHaveBeenCalledWith('/login', { replace: true });
-    });
+    await waitFor(() => expect(mocks.logout).toHaveBeenCalledTimes(1));
   });
 
-  it('refreshes role on auth state refresh events', async () => {
+  it('delegates Google login to the useAuth hook', async () => {
+    mocks.loginWithGoogle.mockResolvedValue(undefined);
     renderAuth();
-
-    mocks.getDoc
-      .mockResolvedValueOnce({ data: () => ({ role: 'attendee' }) })
-      .mockResolvedValueOnce({ data: () => ({ role: 'admin' }) });
-
-    await resolveInitialAuth(fbUser);
-    await waitFor(() => {
-      expect(useAuthStore.getState().userRole).toBe('attendee');
-    });
-
-    mocks.authStateCallback?.(fbUser);
-    await waitFor(() => {
-      expect(useAuthStore.getState().userRole).toBe('admin');
-    });
-
-    expect(mocks.getDoc).toHaveBeenCalledTimes(2);
+    await userEvent.click(screen.getByRole('button', { name: 'Google' }));
+    await waitFor(() => expect(mocks.loginWithGoogle).toHaveBeenCalledTimes(1));
   });
 
-  it('defaults role to attendee when Firestore role is missing', async () => {
+  it('reflects role changes when the Zustand store updates', async () => {
     renderAuth();
+    expect(screen.getByTestId('role')).toHaveTextContent('none');
 
-    mocks.getDoc.mockResolvedValueOnce({ data: () => ({}) });
-    await resolveInitialAuth(fbUser);
-
-    await waitFor(() => {
-      expect(useAuthStore.getState().userRole).toBe('attendee');
+    useAuthStore.getState().setUser({
+      uid: 'u-2',
+      email: 'staff@test.com',
+      displayName: 'Staff',
+      photoURL: '',
+      role: 'staff',
     });
-  });
-
-  it('surfaces login error state for wrong-password', async () => {
-    mocks.signInWithEmailAndPassword.mockRejectedValue({ code: 'auth/wrong-password' });
-
-    renderAuth();
-    await resolveInitialAuth(null);
-
-    await userEvent.click(screen.getByRole('button', { name: 'Login' }));
 
     await waitFor(() => {
-      expect(mocks.toastError).toHaveBeenCalledWith(
-        'Incorrect password. Please try again.',
-        expect.objectContaining({ id: 'login-error' }),
-      );
+      expect(screen.getByTestId('role')).toHaveTextContent('staff');
     });
   });
 });

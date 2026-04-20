@@ -2,16 +2,24 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 import { ProtectedRoute } from './ProtectedRoute';
-import type { User, UserRole } from '@/types/auth';
+import type { UserRole } from '@/types/auth';
 
-const authState = {
-  currentUser: null as User | null,
-  userRole: null as UserRole | null,
-  isLoggedIn: false,
+type StoreUser = {
+  uid: string;
+  email: string;
+  displayName: string;
+  photoURL: string;
+  role: UserRole;
+} | null;
+
+const storeState: { user: StoreUser; isLoading: boolean; isAuthenticated: boolean } = {
+  user: null,
+  isLoading: false,
+  isAuthenticated: false,
 };
 
 vi.mock('@/store/authStore', () => ({
-  useAuthStore: () => authState,
+  useAuthStore: () => storeState,
 }));
 
 function renderProtected(initialPath: string) {
@@ -29,9 +37,9 @@ function renderProtected(initialPath: string) {
 }
 
 beforeEach(() => {
-  authState.currentUser = null;
-  authState.userRole = null;
-  authState.isLoggedIn = false;
+  storeState.user = null;
+  storeState.isLoading = false;
+  storeState.isAuthenticated = false;
 });
 
 describe('ProtectedRoute', () => {
@@ -41,20 +49,27 @@ describe('ProtectedRoute', () => {
   });
 
   it('redirects users with wrong role to their home route', () => {
-    authState.currentUser = { uid: '1', email: 'a@b.com', displayName: 'User', role: 'attendee' };
-    authState.userRole = 'attendee';
-    authState.isLoggedIn = true;
+    storeState.user = { uid: '1', email: 'a@b.com', displayName: 'User', photoURL: '', role: 'attendee' };
+    storeState.isAuthenticated = true;
 
     renderProtected('/admin');
     expect(screen.getByText('Attendee Home')).toBeInTheDocument();
   });
 
-  it('renders the protected route for allowed role', () => {
-    authState.currentUser = { uid: '1', email: 'a@b.com', displayName: 'Admin', role: 'admin' };
-    authState.userRole = 'admin';
-    authState.isLoggedIn = true;
+  it('renders the protected route for the allowed role', () => {
+    storeState.user = { uid: '2', email: 'a@b.com', displayName: 'Admin', photoURL: '', role: 'admin' };
+    storeState.isAuthenticated = true;
 
     renderProtected('/admin');
     expect(screen.getByText('Admin Page')).toBeInTheDocument();
+  });
+
+  it('shows loading spinner while auth state is resolving', () => {
+    storeState.isLoading = true;
+
+    renderProtected('/admin');
+    // Loading spinner has no text content — check nothing from routes rendered
+    expect(screen.queryByText('Login Page')).not.toBeInTheDocument();
+    expect(screen.queryByText('Admin Page')).not.toBeInTheDocument();
   });
 });

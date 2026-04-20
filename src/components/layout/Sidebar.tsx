@@ -101,7 +101,7 @@ export function Sidebar({ role, isOpen, onClose }: SidebarProps) {
               <NavLink
                 to={path}
                 onClick={onClose}
-                aria-current={undefined}
+                aria-current={({ isActive }: { isActive: boolean }) => isActive ? 'page' : undefined}
                 className={({ isActive }) =>
                   cn(
                     'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
