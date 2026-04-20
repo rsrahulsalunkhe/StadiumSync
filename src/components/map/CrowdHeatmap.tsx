@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Map } from '@vis.gl/react-google-maps';
 import { HeatmapOverlay } from './HeatmapOverlay';
 import { StadiumGroundOverlay } from './StadiumGroundOverlay';
@@ -38,6 +39,10 @@ interface CrowdHeatmapProps {
  * Must be rendered inside an <APIProvider>. Zones come from useCrowdData().
  */
 export function CrowdHeatmap({ zones }: CrowdHeatmapProps) {
+  const markers = React.useMemo(() => {
+    return zones.map((zone) => <ZoneMarker key={zone.zoneId} zone={zone} />);
+  }, [zones]);
+
   return (
     <Map
       mapId={MAPS_MAP_ID ?? 'DEMO_MAP_ID'}
@@ -52,9 +57,7 @@ export function CrowdHeatmap({ zones }: CrowdHeatmapProps) {
     >
       <StadiumGroundOverlay />
       <HeatmapOverlay zones={zones} />
-      {zones.map((zone) => (
-        <ZoneMarker key={zone.zoneId} zone={zone} />
-      ))}
+      {markers}
       <ExitRoutePolyline />
     </Map>
   );

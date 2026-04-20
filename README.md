@@ -187,6 +187,8 @@ exitScore = (crowdDensity × 0.6) + (distanceScore × 0.4)
 
 ### Frontend Setup
 
+⚠️ **IMPORTANT SECURITY NOTE**: This project uses a strict runtime environment validator (`src/lib/env.ts`). **The app will fail to start** if any required `VITE_FIREBASE_*` variables are missing. Do not commit your secret keys.
+
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/stadiumsync.git
@@ -195,8 +197,8 @@ cd stadiumsync
 # Install dependencies
 npm install
 
-# Create environment file
-cp .env.example .env.development
+# Create environment file (must use .env.local; NEVER commit this)
+cp .env.example .env.local
 
 # Start development server
 npm run dev
@@ -219,7 +221,7 @@ npm run dev
 
 ### Environment Variables
 
-#### Frontend (`.env.development`)
+#### Frontend (`.env.local`)
 
 | Variable | Description |
 |----------|-------------|

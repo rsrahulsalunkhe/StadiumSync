@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Plus, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { KanbanBoard } from '@/components/tasks/KanbanBoard';
-import { AddTaskDialog } from '@/components/tasks/AddTaskDialog';
+import { TaskBoard as TaskBoardComponent, AddTaskDialog } from '@/features/staff/components';
 import { useTasks } from '@/hooks/useTasks';
 import { useTaskStore } from '@/store/taskStore';
 import { useAuth } from '@/hooks/useAuth';
@@ -83,7 +82,7 @@ export default function TaskBoard() {
           ))}
         </div>
       ) : (
-        <KanbanBoard />
+        <TaskBoardComponent />
       )}
 
       {/* Admin-only dialog */}

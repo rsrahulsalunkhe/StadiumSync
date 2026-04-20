@@ -2,9 +2,8 @@ import { useMemo, useState } from 'react';
 import { ListFilter, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQueueData } from '@/hooks/useQueueData';
-import { QueueCard } from '@/components/queue/QueueCard';
+import { QueueCard, ExitRoutingDialog } from '@/features/attendee/components';
 import { QueueCardSkeleton } from '@/components/queue/QueueCardSkeleton';
-import { ExitRoutingDialog } from '@/components/exit/ExitRoutingDialog';
 import type { ZoneType } from '@/types/queue';
 
 // ── Filter tabs ───────────────────────────────────────────────────────────────
@@ -40,6 +39,10 @@ export default function QueueDashboard() {
       return a.waitMinutes - b.waitMinutes;
     });
   }, [zones, activeTab]);
+
+  const queueCards = useMemo(() => {
+    return filtered.map((zone) => <QueueCard key={zone.id} zone={zone} />);
+  }, [filtered]);
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
@@ -143,9 +146,7 @@ export default function QueueDashboard() {
           aria-live="polite"
           aria-label={`${filtered.length} zones shown`}
         >
-          {filtered.map((zone) => (
-            <QueueCard key={zone.id} zone={zone} />
-          ))}
+          {queueCards}
         </div>
       )}
 

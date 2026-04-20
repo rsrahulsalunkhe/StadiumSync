@@ -1,5 +1,4 @@
-import { AlertComposer } from '@/components/alerts/AlertComposer';
-import { AlertHistoryTable } from '@/components/alerts/AlertHistoryTable';
+import { AlertComposer, AlertHistory } from '@/features/admin/components';
 
 /**
  * Admin Broadcast Alerts page.
@@ -19,7 +18,7 @@ export default function BroadcastAlerts() {
       </div>
 
       <AlertComposer />
-      <AlertHistoryTable />
+      <AlertHistory />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { MapPin, Navigation } from 'lucide-react';
 import { CrowdHeatmap } from '@/components/map/CrowdHeatmap';
 import { MapLegend } from '@/components/map/MapLegend';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
-import { ExitRoutingDialog } from '@/components/exit/ExitRoutingDialog';
+import { ExitRoutingDialog } from '@/features/attendee/components';
 import { useCrowdData } from '@/hooks/useCrowdData';
 import { useGoogleMaps } from '@/hooks/useGoogleMaps';
 import { cn } from '@/lib/utils';

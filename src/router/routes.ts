@@ -11,6 +11,7 @@ export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   UNAUTHORIZED: '/unauthorized',
+  PROFILE: '/profile',
 
   // Attendee
   ATTENDEE_DASHBOARD: '/attendee',

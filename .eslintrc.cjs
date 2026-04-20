@@ -40,7 +40,8 @@ module.exports = {
       { allowConstantExport: true },
     ],
     'react/prop-types': 'off', // TypeScript handles prop types
-    'react/display-name': 'warn',
+    'react/display-name': 'error',
+    'react-hooks/exhaustive-deps': 'error',
 
     /* TypeScript */
     '@typescript-eslint/consistent-type-imports': [
@@ -55,6 +56,11 @@ module.exports = {
       'error',
       { allowNumber: true },
     ],
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/explicit-function-return-type': 'warn',
+
+    /* Custom rules */
+    'no-console': ['warn', { allow: ['warn', 'error'] }],
 
     /* Accessibility */
     'jsx-a11y/anchor-is-valid': [
@@ -65,5 +71,8 @@ module.exports = {
         aspects: ['invalidHref', 'preferButton'],
       },
     ],
+    'jsx-a11y/alt-text': 'error',
+    'jsx-a11y/aria-props': 'error',
+    'jsx-a11y/role-has-required-aria-props': 'error',
   },
 };

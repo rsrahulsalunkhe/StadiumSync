@@ -8,10 +8,12 @@ import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import LoginPage from '@/pages/LoginPage';
 import UnauthorizedPage from '@/pages/UnauthorizedPage';
 import NotFoundPage from '@/pages/NotFoundPage';
+import ProfilePage from '@/pages/ProfilePage';
 
 // ── Layouts ───────────────────────────────────────────────────────────────────
 import RootLayout from '@/components/layout/RootLayout';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ClassErrorBoundary } from '@/components/ClassErrorBoundary';
 
 const AppLayout = lazy(() => import('@/components/layout/AppLayout'));
 
@@ -44,6 +46,15 @@ const RouteLoader = (
   </div>
 );
 
+// Helper to wrap lazy routes
+const withBoundary = (Element: React.ReactNode) => (
+  <ClassErrorBoundary>
+    <Suspense fallback={RouteLoader}>
+      {Element}
+    </Suspense>
+  </ClassErrorBoundary>
+);
+
 export const router = createBrowserRouter([
   {
     // RootLayout provides AuthContext to all child routes
@@ -54,6 +65,7 @@ export const router = createBrowserRouter([
   { path: ROUTES.LOGIN, element: <LoginPage /> },
   { path: ROUTES.UNAUTHORIZED, element: <UnauthorizedPage /> },
   { path: '/404', element: <NotFoundPage /> },
+  { path: ROUTES.PROFILE, element: <ProfilePage /> },
 
   // Root redirect
   { path: ROUTES.HOME, element: <Navigate to={ROUTES.LOGIN} replace /> },
@@ -63,51 +75,27 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute allowedRoles={['attendee']} />,
     children: [
       {
-        element: (
-          <Suspense fallback={RouteLoader}>
-            <AppLayout role="attendee" />
-          </Suspense>
-        ),
+        element: withBoundary(<AppLayout role="attendee" />),
         children: [
           {
             path: ROUTES.ATTENDEE_DASHBOARD,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <AttendeeDashboard />
-              </Suspense>
-            ),
+            element: withBoundary(<AttendeeDashboard />),
           },
           {
             path: ROUTES.ATTENDEE_TICKETS,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <AttendeeMyTickets />
-              </Suspense>
-            ),
+            element: withBoundary(<AttendeeMyTickets />),
           },
           {
             path: ROUTES.ATTENDEE_HEATMAP,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <AttendeeCrowdHeatmap />
-              </Suspense>
-            ),
+            element: withBoundary(<AttendeeCrowdHeatmap />),
           },
           {
             path: ROUTES.ATTENDEE_QUEUE,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <AttendeeQueueDashboard />
-              </Suspense>
-            ),
+            element: withBoundary(<AttendeeQueueDashboard />),
           },
           {
             path: ROUTES.ATTENDEE_NOTIFICATIONS,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <AttendeeNotificationsPage />
-              </Suspense>
-            ),
+            element: withBoundary(<AttendeeNotificationsPage />),
           },
         ],
       },
@@ -119,44 +107,24 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute allowedRoles={['staff']} />,
     children: [
       {
-        element: (
-          <Suspense fallback={RouteLoader}>
-            <AppLayout role="staff" />
-          </Suspense>
-        ),
+        element: withBoundary(<AppLayout role="staff" />),
         children: [
           {
             path: ROUTES.STAFF_DASHBOARD,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <StaffDashboard />
-              </Suspense>
-            ),
+            element: withBoundary(<StaffDashboard />),
           },
           {
             path: ROUTES.STAFF_SCANNER,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <StaffEntryScanner />
-              </Suspense>
-            ),
+            element: withBoundary(<StaffEntryScanner />),
           },
           {
             path: ROUTES.STAFF_TASKS,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <StaffTaskBoard />
-              </Suspense>
-            ),
+            element: withBoundary(<StaffTaskBoard />),
           },
           {
             // Staff can view notifications page too
             path: ROUTES.ATTENDEE_NOTIFICATIONS,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <AttendeeNotificationsPage />
-              </Suspense>
-            ),
+            element: withBoundary(<AttendeeNotificationsPage />),
           },
         ],
       },
@@ -168,59 +136,31 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute allowedRoles={['admin']} />,
     children: [
       {
-        element: (
-          <Suspense fallback={RouteLoader}>
-            <AppLayout role="admin" />
-          </Suspense>
-        ),
+        element: withBoundary(<AppLayout role="admin" />),
         children: [
           {
             path: ROUTES.ADMIN_DASHBOARD,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <AdminDashboard />
-              </Suspense>
-            ),
+            element: withBoundary(<AdminDashboard />),
           },
           {
             path: ROUTES.ADMIN_USERS,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <AdminUserManagement />
-              </Suspense>
-            ),
+            element: withBoundary(<AdminUserManagement />),
           },
           {
             path: ROUTES.ADMIN_CROWD,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <AdminCrowdMonitor />
-              </Suspense>
-            ),
+            element: withBoundary(<AdminCrowdMonitor />),
           },
           {
             path: ROUTES.ADMIN_HEATMAP,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <AdminCrowdHeatmap />
-              </Suspense>
-            ),
+            element: withBoundary(<AdminCrowdHeatmap />),
           },
           {
             path: ROUTES.STAFF_TASKS,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <StaffTaskBoard />
-              </Suspense>
-            ),
+            element: withBoundary(<StaffTaskBoard />),
           },
           {
             path: ROUTES.ADMIN_ALERTS,
-            element: (
-              <Suspense fallback={RouteLoader}>
-                <AdminBroadcastAlerts />
-              </Suspense>
-            ),
+            element: withBoundary(<AdminBroadcastAlerts />),
           },
         ],
       },

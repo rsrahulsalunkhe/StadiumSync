@@ -7,6 +7,7 @@ import { db } from '@/lib/firebase';
 import { useNotificationStore } from '@/store/notificationStore';
 import { useAuth } from '@/hooks/useAuth';
 import type { Notification, NotificationSeverity } from '@/types/notification';
+import DOMPurify from 'dompurify';
 
 // ── Severity display ──────────────────────────────────────────────────────────
 
@@ -182,7 +183,7 @@ export default function NotificationsPage() {
                     </div>
 
                     <p className="mt-1 text-xs text-slate-400 leading-relaxed line-clamp-2">
-                      {notif.message}
+                      {DOMPurify.sanitize(notif.message)}
                     </p>
 
                     <time

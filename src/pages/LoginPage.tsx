@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -46,10 +46,16 @@ function Spinner() {
 }
 
 export default function LoginPage() {
-  const { loginWithGoogle } = useAuth();
+  const { loginWithGoogle, isAuthenticated, currentUser, isLoading } = useAuth();
   const setUser = useAuthStore((state) => state.setUser);
   const navigate = useNavigate();
   const [isRedirecting, setIsRedirecting] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && currentUser) {
+      navigate(`/${currentUser.role || 'attendee'}`);
+    }
+  }, [isLoading, isAuthenticated, currentUser, navigate]);
 
   const handleGoogleLogin = async () => {
     setIsRedirecting(true);
